@@ -115,5 +115,8 @@ async function statistics({login, graphql, queries, start, end, calendar}) {
   }
   //Compute average
   average = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2).replace(/[.]0+$/, "")
+  //DEBUG: surface last 15 days into average so we can see what the plugin actually receives
+  const lastDays = sortedDates.slice(-15).map(d => `${d.slice(5)}=${byDate.get(d)}`).join(",")
+  average = `${average} [last15: ${lastDays}]`
   return {streak, max, average}
 }
