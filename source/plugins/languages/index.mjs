@@ -46,18 +46,15 @@ export default async function({login, data, imports, q, rest, account}, {enabled
     const unique = new Set(repositories.flatMap(repository => repository.languages.edges.map(({node: {name}}) => name))).size
 
     //Iterate through user's repositories and retrieve languages data
-    console.log(`LANGDEBUG: owned=${data.user.repositories.nodes.length} contributedTo=${data.user.repositoriesContributedTo.nodes.length} combined=${repositories.length}`)
+    console.debug(`metrics/compute/${login}/plugins > languages > processing ${repositories.length} repositories (owned + contributed)`)
     const languages = {unique, sections, details, indepth, colors: {}, total: 0, stats: {}, "stats.recent": {}}
     const customColors = {}
     for (const repository of repositories) {
       //Skip repository if asked
       if (!imports.filters.repo(repository, skipped))
         continue
-      const edges = Object.values(repository.languages.edges)
-      const repoTotal = edges.reduce((a, {size}) => a + (size ?? 0), 0)
-      console.log(`LANGDEBUG: repo=${repository.owner?.login}/${repository.name} edges=${edges.length} bytes=${repoTotal}`)
       //Process repository languages
-      for (const {size, node: {color, name}} of edges) {
+      for (const {size, node: {color, name}} of Object.values(repository.languages.edges)) {
         languages.stats[name] = (languages.stats[name] ?? 0) + size
         if (colors[name.toLocaleLowerCase()])
           customColors[name] = colors[name.toLocaleLowerCase()]
@@ -66,7 +63,6 @@ export default async function({login, data, imports, q, rest, account}, {enabled
         languages.total += size
       }
     }
-    console.log(`LANGDEBUG: total=${languages.total} stats=${JSON.stringify(languages.stats)}`)
 
     //Recently used languages
     if ((sections.includes("recently-used")) && (imports.metadata.plugins.languages.extras("indepth", {extras}))) {
