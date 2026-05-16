@@ -99,14 +99,19 @@ async function statistics({login, graphql, queries, start, end, calendar}) {
     //Set next date range start
     from = new Date(to)
   }
+  //Flatten, dedupe by date and sort chronologically — chunks can produce out-of-order or duplicate days
+  const byDate = new Map()
+  for (const week of calendar.weeks)
+    for (const day of week.contributionDays)
+      byDate.set(day.date, day.contributionCount)
+  const sortedDates = [...byDate.keys()].sort()
   //Compute streaks
-  for (const week of calendar.weeks) {
-    for (const day of week.contributionDays) {
-      values.push(day.contributionCount)
-      max = Math.max(max, day.contributionCount)
-      streak.current = day.contributionCount ? streak.current + 1 : 0
-      streak.max = Math.max(streak.max, streak.current)
-    }
+  for (const date of sortedDates) {
+    const count = byDate.get(date)
+    values.push(count)
+    max = Math.max(max, count)
+    streak.current = count ? streak.current + 1 : 0
+    streak.max = Math.max(streak.max, streak.current)
   }
   //Compute average
   average = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2).replace(/[.]0+$/, "")

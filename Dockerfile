@@ -11,6 +11,7 @@ COPY source/plugins/achievements/list/users.mjs /metrics/source/plugins/achievem
 COPY source/plugins/achievements/list/organizations.mjs /metrics/source/plugins/achievements/list/organizations.mjs
 COPY source/plugins/habits/index.mjs /metrics/source/plugins/habits/index.mjs
 COPY source/plugins/languages/index.mjs /metrics/source/plugins/languages/index.mjs
+COPY source/plugins/isocalendar/index.mjs /metrics/source/plugins/isocalendar/index.mjs
 
 # No need to rebuild - the base image already has everything installed
 # Our code changes are just file replacements
